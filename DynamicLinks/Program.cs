@@ -30,7 +30,7 @@ builder.Services.AddDbContext<DynamicLinksDbContext>(options =>
 
 
 /*ADD REDIS CONFIG*/
-builder.Services.AddDistributedMemoryCache();
+builder.Services.AddScoped<ICacheService<DynamicLinkEntity>, CacheService>();
 
 
 /*ADD REPOSITORIES*/
