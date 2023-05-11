@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.5" />
+    <PackageReference Include="Ng.UserAgentService" Version="1.1.2" />
+    <PackageReference Include="StackExchange.Redis" Version="2.6.111" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DynamicLinks.Domain\DynamicLinks.Domain.csproj" />
+    <ProjectReference Include="..\DynamicLinks.Services\DynamicLinks.Services.csproj" />
+    <ProjectReference Include="..\DynamicLinls.Dal\DynamicLinks.Dal.csproj" />
+  </ItemGroup>
+
+</Project>
