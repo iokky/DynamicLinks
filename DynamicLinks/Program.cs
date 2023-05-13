@@ -8,6 +8,7 @@ using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+//builder.WebHost.UseUrls("https://[::]:33333");
 
 // Add services to the container.
 
@@ -29,15 +30,20 @@ builder.Services.AddDbContext<DynamicLinksDbContext>(options =>
 ));
 
 
-/*ADD REDIS CONFIG*/
+/*ADD REDIS*/
 builder.Services.AddScoped<ICacheService<DynamicLinkEntity>, CacheService>();
+/*builder.Services.AddStackExchangeRedisCache(options => 
+{
+    options.Configuration = "localhost:6379";
+    options.InstanceName = "local";
+});*/
 
 
 /*ADD REPOSITORIES*/
 builder.Services.AddScoped<IRepository<DynamicLinkEntity>, DynamicLinkRepository>();
 
 /*ADD SERVICES*/
-builder.Services.AddScoped<IManagedService, RedirectHandlerService>();
+builder.Services.AddTransient<IManagedService, RedirectHandlerService>();
 builder.Services.AddScoped<ILinkReponseFactory, LinkResponseFactory>();
 
 

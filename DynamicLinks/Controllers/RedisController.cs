@@ -20,7 +20,7 @@ namespace DynamicLinks.Controllers
         [HttpGet("get/{link}")]
         public IActionResult Get([FromRoute] string link)
         {
-            var data = _cacheService.Get(link);
+            var data = _cacheService.Get(link).Result;
             if (data != null)
             {
                 return Ok(data);
@@ -42,7 +42,7 @@ namespace DynamicLinks.Controllers
             return Ok();
         }
 
-        [HttpPost("/del/{link}")]
+        [HttpDelete("/del/{link}")]
         public IActionResult Del([FromRoute] string link)
         {
             _cacheService.Del(link);

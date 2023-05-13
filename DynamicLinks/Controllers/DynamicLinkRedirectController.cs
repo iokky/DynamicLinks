@@ -4,6 +4,7 @@ using DynamicLinks.Domain.Requests;
 using DynamicLinks.Services;
 using Microsoft.AspNetCore.Mvc;
 using Ng.Services;
+using System.Diagnostics;
 
 namespace DynamicLinks.Controllers
 {
@@ -39,12 +40,20 @@ namespace DynamicLinks.Controllers
         }
 
         //For Debug only
-        [HttpGet("ua")]
+        [HttpGet("ua-parse")]
         public IActionResult GetUa()
         {
             var data = _userAgent.Parse(Request.Headers["User-Agent"].ToString());
             return Ok(data);
         }
+
+        //For Debug only
+        [HttpGet("headers")]
+        public IActionResult GetHeaders()
+        {
+            return Ok(Request.Headers);
+        }
+
 
         [HttpGet("{shortLink}")]
         public IActionResult RedirectHandler([FromRoute] string shortLink)

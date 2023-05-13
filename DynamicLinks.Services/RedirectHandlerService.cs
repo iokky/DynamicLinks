@@ -15,16 +15,20 @@ namespace DynamicLinks.Services
 
         public ILinkResponse GetLinkResponse(GetLinkRequest getLinkRequest)
         {
-            //TODO сделать ENUM для платформ и OS и переписать на switch-case
+            //TODO обработка роботных запросов или PostMan
             if (getLinkRequest.Mobile)
             {
-                if (getLinkRequest.Platform.ToString().Equals(OS.Android.ToString()))
+                if (Enum.TryParse(getLinkRequest.Platform, out OS os))
                 {
-                    return _responseFactory.CreateAndroidLink(getLinkRequest);
-                }
-                else
-                {
-                    return _responseFactory.CreateIOSLink(getLinkRequest);
+                    switch (os)
+                    {
+                        case OS.Android:
+                            return _responseFactory.CreateAndroidLink(getLinkRequest);
+                        case OS.iOS:
+                            return _responseFactory.CreateIOSLink(getLinkRequest);
+                        default:
+                            return _responseFactory.CreateWebLink(getLinkRequest);
+                    }
                 }
             }
             return _responseFactory.CreateWebLink(getLinkRequest);
