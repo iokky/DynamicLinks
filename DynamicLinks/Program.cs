@@ -24,7 +24,6 @@ builder.Services.AddSwaggerGen(options =>
 /*ADD REDIS*/
 builder.Services.AddStackExchangeRedisCache(options =>
 {
-    //options.Configuration = "localhost:6379,abortConnect=false,connectTimeout=30000,responseTimeout=30000";
     options.Configuration = congifuration["Redis_server"];
     //Uncomment to add prefix to redis keys
     //options.InstanceName = "local";
@@ -45,7 +44,7 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 /*ADD CORS*/
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("Main", builder =>
+    options.AddPolicy("Allow", builder =>
     {
         builder.AllowAnyHeader();
         builder.AllowAnyOrigin();
@@ -67,7 +66,7 @@ if (app.Environment.IsDevelopment())
 // Warn Headers
 app.UseForwardedHeaders();
 
-app.UseCors("Main");
+app.UseCors("Allow");
 
 app.UseHttpsRedirection();
 
@@ -75,5 +74,5 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run(congifuration.Get("Run_on"));
+app.Run(congifuration["Run_on"]);
 
