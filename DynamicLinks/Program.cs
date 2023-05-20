@@ -1,16 +1,14 @@
-using DynamicLinks.Dal;
-using DynamicLinks.Dal.Repositories;
-using DynamicLinks.Dal.Repositories.Interfaces;
-using DynamicLinks.Domain.Entity;
 using DynamicLinks.Services;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.Extensions.Configuration;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
-//builder.WebHost.UseUrls("https://[::]:33333");
 
 // Add services to the container.
+
+var congifuration = builder.Configuration;
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -23,29 +21,25 @@ builder.Services.AddSwaggerGen(options =>
     })
 );
 
-
-/*ADD DB CONTEXT*/
-builder.Services.AddDbContext<DynamicLinksDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DynamicLinksDb")
-));
-
-
 /*ADD REDIS*/
-builder.Services.AddScoped<ICacheService<DynamicLinkEntity>, CacheService>();
-/*builder.Services.AddStackExchangeRedisCache(options => 
+builder.Services.AddStackExchangeRedisCache(options =>
 {
-    options.Configuration = "localhost:6379";
-    options.InstanceName = "local";
-});*/
-
-
-/*ADD REPOSITORIES*/
-builder.Services.AddScoped<IRepository<DynamicLinkEntity>, DynamicLinkRepository>();
+    //options.Configuration = "localhost:6379,abortConnect=false,connectTimeout=30000,responseTimeout=30000";
+    options.Configuration = congifuration["Redis_server"];
+    //Uncomment to add prefix to redis keys
+    //options.InstanceName = "local";
+});
 
 /*ADD SERVICES*/
-builder.Services.AddTransient<IManagedService, RedirectHandlerService>();
-builder.Services.AddScoped<ILinkReponseFactory, LinkResponseFactory>();
+builder.Services.AddTransient<IRedirectService, RedirectService>();
+builder.Services.AddTransient<ILinkReponseFactory, LinkResponseFactory>();
 
+/*ADD FORWARD HEADERS OPTION*/
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders =
+        ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+});
 
 
 /*ADD CORS*/
@@ -69,6 +63,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+// Warn Headers
+app.UseForwardedHeaders();
+
 app.UseCors("Main");
 
 app.UseHttpsRedirection();
@@ -77,5 +75,5 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run("http://10.10.0.4");
+app.Run(congifuration.Get("Run_on"));
 

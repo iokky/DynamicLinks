@@ -1,10 +1,7 @@
-﻿using DynamicLinks.Dal.Repositories.Interfaces;
-using DynamicLinks.Domain.Entity;
-using DynamicLinks.Domain.Requests;
+﻿using DynamicLinks.Domain.Requests;
 using DynamicLinks.Services;
 using Microsoft.AspNetCore.Mvc;
 using Ng.Services;
-using System.Diagnostics;
 
 namespace DynamicLinks.Controllers
 {
@@ -12,15 +9,11 @@ namespace DynamicLinks.Controllers
     [ApiController]
     public class DynamicLinkRedirectController : ControllerBase
     {
-        private readonly IRepository<DynamicLinkEntity> _repository;
-        private readonly IManagedService _redirectHandlerService;
+        private readonly IRedirectService _redirectHandlerService;
         private readonly UserAgentService _userAgent;
 
-        public DynamicLinkRedirectController(
-            IRepository<DynamicLinkEntity> repository,
-            IManagedService redirectHandlerService)
+        public DynamicLinkRedirectController(IRedirectService redirectHandlerService)
         {
-            _repository = repository;
             _userAgent = new UserAgentService(new UserAgentSettings()
             {
                 CacheSizeLimit = 20000,
@@ -29,22 +22,6 @@ namespace DynamicLinks.Controllers
             });
             _redirectHandlerService = redirectHandlerService;
 
-        }
-
-        //For Debug only
-        [HttpGet("all")]
-        public IList<DynamicLinkEntity> Index()
-        {
-            return _repository.GetAll().Result.ToList();
-
-        }
-
-        //For Debug only
-        [HttpGet("ua-parse")]
-        public IActionResult GetUa()
-        {
-            var data = _userAgent.Parse(Request.Headers["User-Agent"].ToString());
-            return Ok(data);
         }
 
         //For Debug only
@@ -67,14 +44,8 @@ namespace DynamicLinks.Controllers
                 ShortLink = shortLink,
             });
 
-
             return Redirect(link.Url);
         }
-
-
-        //For Debug only
-        [HttpPost("/create")]
-        public IActionResult Create([FromBody] DynamicLinkEntity link) => Ok(_repository.Create(link).Result);
 
     }
 }

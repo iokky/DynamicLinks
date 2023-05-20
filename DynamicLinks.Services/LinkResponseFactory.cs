@@ -1,107 +1,88 @@
-﻿using DynamicLinks.Dal.Repositories.Interfaces;
-using DynamicLinks.Domain.Entity;
+﻿using DynamicLinks.Domain.Entity;
 using DynamicLinks.Domain.Requests.Interfaces;
 using DynamicLinks.Domain.Response;
 using DynamicLinks.Domain.Response.Interfaces;
+using Microsoft.Extensions.Caching.Distributed;
 using System.Diagnostics;
+using System.Text.Json;
 
 namespace DynamicLinks.Services
 {
-    //TODO все мметоды в async
+    //TODO все методы в async
     public class LinkResponseFactory : ILinkReponseFactory
     {
-        private readonly IRepository<DynamicLinkEntity> _repository;
-
         //TODO обработать сценарий падения redis
-        private readonly ICacheService<DynamicLinkEntity> _redis;
+        private readonly IDistributedCache _redis;
+        private readonly Stopwatch sw = Stopwatch.StartNew();
 
-        public LinkResponseFactory(
-            IRepository<DynamicLinkEntity> repository,
-            ICacheService<DynamicLinkEntity> redis)
+        public LinkResponseFactory(IDistributedCache redis)
         {
-            _repository = repository;
             _redis = redis;
         }
-
-        //ToDO прикрутить redis
+        #region CreateAndroidLink
         public ILinkResponse CreateAndroidLink(ILinkRequest link)
         {
-            if (_redis.GetRedisStatusOk())
+            sw.Start();
+            var redisData = _redis.GetStringAsync(link.ShortLink.ToString()).Result;
+            if (redisData is not null)
             {
-                var redisData = _redis.Get(link.ShortLink).Result;
-                if (redisData != null)
+                var resultAndroid = JsonSerializer.Deserialize<DynamicLinkEntity>(redisData);
+                if (resultAndroid!.AndroidLink is null)
                 {
-                    if (redisData.AndroidLink is null)
-                    {
-                        //TODO Обработай null на AndroidDefaultLink
-                        return new AndroidLinkResponse(redisData.AndroidDefaultLink.ToString());
-                    }
-
-                    return new AndroidLinkResponse(redisData.AndroidLink.ToString());
+                    sw.Stop();
+                    Debug.WriteLine($"{sw.Elapsed.Seconds}s:{sw.Elapsed.Milliseconds}ms:{sw.Elapsed.Nanoseconds}ns");
+                    return new AndroidLinkResponse(resultAndroid!.AndroidDefaultLink!.ToString());
                 }
+                sw.Stop();
+                //TODO Обработай пустую дефолтную ссылку
+                Debug.WriteLine($"{sw.Elapsed.Seconds}s:{sw.Elapsed.Milliseconds}ms:{sw.Elapsed.Nanoseconds}ns");
+                return new AndroidLinkResponse(resultAndroid.AndroidLink.ToString());
             }
-
-
-            var androidLink = _repository.GetAsync(link.ShortLink).Result;
-            if (androidLink is not null)
-            {
-                if (androidLink.AndroidLink is null)
-                {
-                    //TODO обработка Null в androidLink
-                    return new AndroidLinkResponse(androidLink.AndroidDefaultLink.ToString());
-                }
-                //TODO обработка Null в androidLink
-
-                return new AndroidLinkResponse(androidLink.AndroidLink.ToString());
-            }
+            sw.Stop();
+            var time = sw.Elapsed;
+            Debug.WriteLine($"{time.Seconds}s:{time.Milliseconds}ms:{time.Nanoseconds}ns");
             return new AndroidLinkResponse("/");
         }
+        #endregion
 
-        //ToDO прикрутить redis
+        #region CreateIOSLink
         public ILinkResponse CreateIOSLink(ILinkRequest link)
         {
-            var iosLink = _repository.GetAsync(link.ShortLink).Result;
-            if (iosLink is not null)
-            {
 
-                if (iosLink == default)
+            var redisData = _redis.GetStringAsync(link.ShortLink.ToString()).Result;
+            if (redisData is not null)
+            {
+                var resultIOSLink = JsonSerializer.Deserialize<DynamicLinkEntity>(redisData);
+
+                if (resultIOSLink!.IOSLink is not null)
                 {
-                    //TODO обработка Null в iosLink
-                    return new IOSLinkResponse(_repository.GetAsync(link.ShortLink).Result.AndroidDefaultLink.ToString());
+                    return new IOSLinkResponse(resultIOSLink.IOSLink.ToString());
                 }
-                //TODO обработка Null в iosLink
-                return new IOSLinkResponse(iosLink.ToString());
+                //TODO Обработай пустую дефолтную ссылку
+                return new IOSLinkResponse(resultIOSLink!.IOSDefaultLink!.ToString());
             }
             return new IOSLinkResponse("/");
         }
+        #endregion
 
-
+        #region CreateWebLink
         public ILinkResponse CreateWebLink(ILinkRequest link)
         {
-            if (_redis.GetRedisStatusOk())
+            sw.Start();
+            var redisData = _redis.GetStringAsync(link.ShortLink.ToString()).Result;
+
+            if (redisData is not null)
             {
-                var redisData = _redis.Get(link.ShortLink).Result;
-                if (redisData is not null)
-                {
-                    Debug.WriteLine($"data from redis {redisData.ShortLink} - {redisData.WebLink}");
-                    return new WebLinkResponse(redisData.WebLink!.ToString());
-                }
-            }
-            else
-            {
-                var webLink = _repository.GetAsync(link.ShortLink).Result;
-                //TODO обработка Null в webLink
-                if (webLink is not null)
-                {
-                    //TODO Если Redis упал то тут будет задержка
-                    //реализуй или проверку или переделай 
-                    _redis.Set(webLink.ShortLink, webLink);
-                    return new WebLinkResponse(webLink.WebLink!.ToString());
-                }
+                var resultWebLink = JsonSerializer.Deserialize<DynamicLinkEntity>(redisData);
+                sw.Stop();
+                Debug.WriteLine($"{sw.Elapsed.Seconds}s:{sw.Elapsed.Milliseconds}ms:{sw.Elapsed.Nanoseconds}ns");
+                return new WebLinkResponse(resultWebLink!.WebLink!.ToString());
             }
 
             return new WebLinkResponse("/");
         }
+
+        #endregion
 
     }
 }

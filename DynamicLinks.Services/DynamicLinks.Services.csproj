@@ -17,7 +17,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DynamicLinks.Domain\DynamicLinks.Domain.csproj" />
-    <ProjectReference Include="..\DynamicLinls.Dal\DynamicLinks.Dal.csproj" />
   </ItemGroup>
 
 </Project>
