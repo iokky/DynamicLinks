@@ -2,7 +2,7 @@
 
 namespace DynamicLinks.Domain.Requests
 {
-    public class GetLinkRequest: ILinkRequest
+    public class GetLinkRequest : ILinkRequest
     {
         public bool Mobile { get; set; }
         public string Platform { get; set; } = null!;

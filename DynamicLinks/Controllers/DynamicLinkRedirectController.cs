@@ -1,6 +1,4 @@
-﻿using DynamicLinks.Dal.Repositories.Interfaces;
-using DynamicLinks.Domain.Entity;
-using DynamicLinks.Domain.Requests;
+﻿using DynamicLinks.Domain.Requests;
 using DynamicLinks.Services;
 using Microsoft.AspNetCore.Mvc;
 using Ng.Services;
@@ -11,15 +9,11 @@ namespace DynamicLinks.Controllers
     [ApiController]
     public class DynamicLinkRedirectController : ControllerBase
     {
-        private readonly IRepository<DynamicLinkEntity> _repository;
-        private readonly IManagedService _redirectHandlerService;
+        private readonly IRedirectService _redirectHandlerService;
         private readonly UserAgentService _userAgent;
 
-        public DynamicLinkRedirectController(
-            IRepository<DynamicLinkEntity> repository,
-            IManagedService redirectHandlerService)
+        public DynamicLinkRedirectController(IRedirectService redirectHandlerService)
         {
-            _repository = repository;
             _userAgent = new UserAgentService(new UserAgentSettings()
             {
                 CacheSizeLimit = 20000,
@@ -31,20 +25,12 @@ namespace DynamicLinks.Controllers
         }
 
         //For Debug only
-        [HttpGet("all")]
-        public IList<DynamicLinkEntity> Index()
+        [HttpGet("headers")]
+        public IActionResult GetHeaders()
         {
-            return _repository.GetAll().Result.ToList();
-
+            return Ok(Request.Headers);
         }
 
-        //For Debug only
-        [HttpGet("ua")]
-        public IActionResult GetUa()
-        {
-            var data = _userAgent.Parse(Request.Headers["User-Agent"].ToString());
-            return Ok(data);
-        }
 
         [HttpGet("{shortLink}")]
         public IActionResult RedirectHandler([FromRoute] string shortLink)
@@ -58,14 +44,8 @@ namespace DynamicLinks.Controllers
                 ShortLink = shortLink,
             });
 
-
             return Redirect(link.Url);
         }
-
-
-        //For Debug only
-        [HttpPost("/create")]
-        public IActionResult Create([FromBody] DynamicLinkEntity link) => Ok(_repository.Create(link).Result);
 
     }
 }
