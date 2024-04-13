@@ -20,7 +20,7 @@ namespace DynamicLinks.Services
             _redis = redis;
         }
         #region CreateAndroidLink
-        public ILinkResponse CreateAndroidLink(ILinkRequest link)
+        public ILinkResponse GetAndroidLink(ILinkRequest link)
         {
             sw.Start();
             var redisData = _redis.GetStringAsync(link.ShortLink.ToString()).Result;
@@ -46,7 +46,7 @@ namespace DynamicLinks.Services
         #endregion
 
         #region CreateIOSLink
-        public ILinkResponse CreateIOSLink(ILinkRequest link)
+        public ILinkResponse GetIOSLink(ILinkRequest link)
         {
 
             var redisData = _redis.GetStringAsync(link.ShortLink.ToString()).Result;
@@ -66,7 +66,7 @@ namespace DynamicLinks.Services
         #endregion
 
         #region CreateWebLink
-        public ILinkResponse CreateWebLink(ILinkRequest link)
+        public ILinkResponse GetWebLink(ILinkRequest link)
         {
             sw.Start();
             var redisData = _redis.GetStringAsync(link.ShortLink.ToString()).Result;
@@ -84,5 +84,17 @@ namespace DynamicLinks.Services
 
         #endregion
 
+        public void CreateLink(DynamicLinkEntity link)
+        {
+            var redisData = _redis.GetStringAsync(link.ShortLink.ToString()).Result;
+            if (redisData is null)
+            {
+                //_redis.SetString(link.ShortLink.ToString(), link.ToString());
+                _redis.Set(
+                    link.ShortLink.ToString(),
+                       JsonSerializer.SerializeToUtf8Bytes(link)
+                    );
+            }
+        }
     }
 }

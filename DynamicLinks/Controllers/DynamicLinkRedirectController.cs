@@ -12,8 +12,11 @@ namespace DynamicLinks.Controllers
     {
         private readonly IRedirectService _redirectHandlerService;
         private readonly UserAgentService _userAgent;
+        private readonly ILinkReponseFactory _linkReponseFactory;
 
-        public DynamicLinkRedirectController(IRedirectService redirectHandlerService)
+        public DynamicLinkRedirectController(
+            IRedirectService redirectHandlerService,
+            ILinkReponseFactory linkReponseFactory)
         {
             _userAgent = new UserAgentService(new UserAgentSettings()
             {
@@ -22,7 +25,7 @@ namespace DynamicLinks.Controllers
                 UaStringSizeLimit = 256,
             });
             _redirectHandlerService = redirectHandlerService;
-
+            _linkReponseFactory = linkReponseFactory;
         }
 
         //For Debug only
@@ -48,10 +51,10 @@ namespace DynamicLinks.Controllers
             return Redirect(link.Url);
         }
 
-        [HttpGet("/ss")]
+        [HttpPost("create")]
         public IActionResult CreateLinkHandler([FromBody] DynamicLinkEntity link)
         {
-            
+            _linkReponseFactory.CreateLink(link);
             return Ok();
         }
     }
