@@ -1,6 +1,5 @@
 using DynamicLinks.Services;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.Extensions.Configuration;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 
@@ -74,5 +73,5 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run(congifuration["Run_on"]);
+app.Run();
 

@@ -1,0 +1,15 @@
+version: '3.4'
+
+services:
+  dynamiclinks:
+    image: ${DOCKER_REGISTRY-}dynamiclinks
+    build:
+      context: .
+      dockerfile: DynamicLinks/Dockerfile
+    container_name: root_node
+
+  redis:
+      image: redislabs/redismod:latest
+      container_name: redis
+      ports: 
+        - 6379:6379

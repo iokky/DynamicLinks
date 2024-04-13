@@ -1,5 +1,4 @@
-﻿using DynamicLinks.Domain.Requests;
-using DynamicLinks.Domain.Requests.Interfaces;
+﻿using DynamicLinks.Domain.Requests.Interfaces;
 using DynamicLinks.Domain.Response.Interfaces;
 
 namespace DynamicLinks.Services

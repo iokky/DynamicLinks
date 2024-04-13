@@ -1,4 +1,5 @@
-﻿using DynamicLinks.Domain.Requests;
+﻿using DynamicLinks.Domain.Entity;
+using DynamicLinks.Domain.Requests;
 using DynamicLinks.Services;
 using Microsoft.AspNetCore.Mvc;
 using Ng.Services;
@@ -47,5 +48,11 @@ namespace DynamicLinks.Controllers
             return Redirect(link.Url);
         }
 
+        [HttpGet("/ss")]
+        public IActionResult CreateLinkHandler([FromBody] DynamicLinkEntity link)
+        {
+            
+            return Ok();
+        }
     }
 }
