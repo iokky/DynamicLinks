@@ -25,15 +25,15 @@ namespace DynamicLinks.Services
                     switch (os)
                     {
                         case OS.Android:
-                            return _responseFactory.CreateAndroidLink(getLinkRequest);
+                            return _responseFactory.GetAndroidLink(getLinkRequest);
                         case OS.iOS:
-                            return _responseFactory.CreateIOSLink(getLinkRequest);
+                            return _responseFactory.GetIOSLink(getLinkRequest);
                         default:
-                            return _responseFactory.CreateWebLink(getLinkRequest);
+                            return _responseFactory.GetWebLink(getLinkRequest);
                     }
                 }
             }
-            return _responseFactory.CreateWebLink(getLinkRequest);
+            return _responseFactory.GetWebLink(getLinkRequest);
         }
     }
 }
