@@ -93,7 +93,7 @@ namespace DynamicLinks.Services
                 _redis.Set(
                     link.ShortLink.ToString(),
                        JsonSerializer.SerializeToUtf8Bytes(link)
-                    );
+                );
             }
         }
     }
